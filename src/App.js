@@ -4,53 +4,68 @@ import Follower from './Follower';
 import paginate from './utils';
 function App() {
   const { loading, data } = useFetch();
-  const [page, setPage] = useState(1);
+  const [pageIndex, setPageIndex] = useState(0);
   const [people, setPeople] = useState([]);
-  const [remainder, setRemainder] = useState(0);
-  const perPage = 3;
-  console.log(page);
+  const [pageCount, setPageCount] = useState(0);
+  const itemsPerPage = 12;
 
   useEffect(() => {
-    if (data.length % perPage) {
-      setRemainder(1);
-    }
-    const list = paginate(page, perPage, data);
-    setPeople(list);
-  }, [loading, page]);
+    if (loading) return;
+    const pageObj = paginate(itemsPerPage, data);
+    setPeople(pageObj.pageArr);
+    setPageCount(pageObj.pageCount);
+  }, [data, loading, pageIndex]);
 
-  const handleClick = (e) => {
+  const handleIndex = (e) => {
     const direction = e.target.textContent;
     if (direction === 'prev') {
-      if (page === 1) {
-        setPage(Math.floor(data.length / perPage) + remainder);
+      if (pageIndex === 0) {
+        setPageIndex(pageCount - 1);
       } else {
-        setPage(page - 1);
+        setPageIndex(pageIndex - 1);
       }
     }
     if (direction === 'next') {
-      if (page === Math.floor(data.length / perPage) + remainder) {
-        setPage(1);
+      if (pageIndex === pageCount - 1) {
+        setPageIndex(0);
       } else {
-        setPage(page + 1);
+        setPageIndex(pageIndex + 1);
       }
     }
   };
 
   return (
     <>
-      <h2>pagination starter</h2>
+      <h2 className='section-title'>pagination</h2>
       <main>
         <section className='section section-center'>
           <div className='container'>
-            {people &&
-              people.map((person) => {
+            {people.length > 1 &&
+              people[pageIndex].map((person) => {
                 return <Follower key={person.id} {...person} />;
               })}
           </div>
-          <div className='btn-container'>
-            <button onClick={(e) => handleClick(e)}>prev</button>
-            <button onClick={(e) => handleClick(e)}>next</button>
-          </div>
+          {!loading && (
+            <div className='btn-container'>
+              <button className='prev-btn' onClick={(e) => handleIndex(e)}>
+                prev
+              </button>
+              {people.map((item, index) => (
+                <button
+                  className={
+                    index === pageIndex ? 'page-btn active-btn' : 'page-btn'
+                  }
+                  key={index}
+                  onClick={(e) => setPageIndex(index)}
+                >
+                  {index + 1}
+                </button>
+              ))}
+              <button className='next-btn' onClick={(e) => handleIndex(e)}>
+                next
+              </button>
+            </div>
+          )}
         </section>
       </main>
     </>

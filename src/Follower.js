@@ -1,14 +1,14 @@
 import React from 'react';
 
-const Follower = (props) => {
-  const { avatar_url: url, login } = props;
-
+const Follower = ({ avatar_url, html_url, login }) => {
   return (
-    <div className='card'>
-      <div className='container'>
-        <img src={url} alt={login} className='img' />
-      </div>
-    </div>
+    <article className='card'>
+      <img src={avatar_url} alt={login} />
+      <h4>${login}</h4>
+      <a href={html_url} className='btn'>
+        view profile
+      </a>
+    </article>
   );
 };
 
